@@ -1,0 +1,1059 @@
+﻿@{
+    ViewBag.Title = "MasterData";
+    Layout = "~/Views/Shared/_MasterDataLayout.cshtml";
+}
+
+
+<style>
+    :root {
+        --bg: #f4f6fb;
+        --surface: #ffffff;
+        --border: #e8ecf4;
+        --text: #1a1f36;
+        --muted: #8892a4;
+        --accent: #003A8F;
+        --done: #22c55e;
+        --warn: #f59e0b;
+        --overdue: #ef4444;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    /* ── Layout ── */
+    .page-content {
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 28px 0;
+        flex-shrink: 0;
+    }
+
+    .page-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+
+    .page-sub {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-top: 4px;
+    }
+
+    /* ── Main split ── */
+    .split {
+        display: grid;
+        grid-template-columns: 270px 1fr;
+        flex: 1;
+        overflow: hidden;
+        margin: 20px 28px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--surface);
+    }
+
+    /* ── Left: Tree ── */
+    .tree-panel {
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-radius: 16px 0 0 16px;
+    }
+
+    .tree-search {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        flex-shrink: 0;
+    }
+
+        .tree-search i {
+            position: absolute;
+            left: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 0.78rem;
+            pointer-events: none;
+        }
+
+        .tree-search input {
+            width: 100%;
+            padding: 7px 10px 7px 30px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            color: var(--text);
+            background: var(--bg);
+            outline: none;
+        }
+
+            .tree-search input:focus {
+                border-color: var(--accent);
+            }
+
+    .tree-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 0;
+    }
+
+        .tree-body::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .tree-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+    /* tree nodes */
+    .t-div {
+        padding: 7px 16px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: var(--muted);
+    }
+
+        .t-div:hover {
+            background: var(--bg);
+        }
+
+    .t-arrow {
+        font-size: 0.6rem;
+        transition: transform .15s;
+        flex-shrink: 0;
+    }
+
+        .t-arrow.open {
+            transform: rotate(90deg);
+        }
+
+    .t-dept {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 16px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        color: var(--muted);
+        border-radius: 8px;
+        margin: 0 6px;
+    }
+
+        .t-dept:hover {
+            background: var(--bg);
+        }
+
+    .t-sec {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 10px;
+        cursor: pointer;
+        border-radius: 8px;
+        margin: 1px 8px;
+        font-size: 0.8rem;
+        color: var(--text);
+        border: 1px solid transparent;
+        transition: all .15s;
+    }
+
+        .t-sec:hover {
+            background: var(--bg);
+        }
+
+        .t-sec.active {
+            background: #eef1ff;
+            border-color: #c7d2fe;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+    .t-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .t-cnt {
+        font-size: 0.68rem;
+        color: var(--muted);
+        margin-left: auto;
+    }
+
+    /* ── Right: Detail ── */
+    .detail-panel {
+        background: var(--bg);
+        overflow-y: auto;
+        padding: 20px 24px;
+        border-radius: 0 16px 16px 0;
+        position: relative;
+    }
+
+        .detail-panel::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .detail-panel::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+    /* ── Hierarchy Card ── */
+    .card-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 14px;
+        animation: fadeUp .3s ease both;
+    }
+
+    .card-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    /* ── Level row ── */
+    .lvl-row {
+        display: grid;
+        grid-template-columns: 170px 1fr;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .lvl-row:last-child {
+            border-bottom: none;
+        }
+
+    .lvl-cell-left {
+        padding: 12px 16px;
+        border-right: 1px solid var(--border);
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .lvl-cell-right {
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* level badge */
+    .task-tag {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 20px;
+    }
+
+    .tag-l1 {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+
+    .tag-l2 {
+        background: #eef1ff;
+        color: #3730a3;
+    }
+
+    .tag-l3 {
+        background: #fffbeb;
+        color: #92400e;
+    }
+
+    .tag-l4 {
+        background: #fff1f2;
+        color: #9f1239;
+    }
+
+    .tag-gm {
+        background: #faf5ff;
+        color: #581c87;
+    }
+
+    /* approver chip */
+    .ap-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 11px;
+        border-radius: 9px;
+        flex: 1;
+    }
+
+    .ap-av {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .ap-name {
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .ap-id {
+        font-size: 0.68rem;
+        opacity: .7;
+        font-family: 'DM Mono', monospace;
+    }
+
+    /* edit row */
+    .edit-input {
+        padding: 6px 8px;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.8rem;
+        color: var(--text);
+        outline: none;
+        background: var(--surface);
+    }
+
+        .edit-input:focus {
+            border-color: var(--accent);
+        }
+
+        .edit-input.w-id {
+            width: 90px;
+        }
+
+        .edit-input.w-name {
+            flex: 1;
+        }
+
+    .btn-new {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .btn-new:hover {
+            opacity: .85;
+        }
+
+    .btn-icon {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        transition: all .15s;
+    }
+
+        .btn-icon:hover {
+            background: var(--bg);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-icon.del:hover {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: var(--overdue);
+        }
+
+    .btn-assign {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 11px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        border: 1px dashed var(--border);
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        transition: all .15s;
+    }
+
+        .btn-assign:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: #eef1ff;
+        }
+
+   
+    .badge-full {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .badge-part {
+        background: #fef9c3;
+        color: #a16207;
+    }
+
+    .badge-empty {
+        background: var(--bg);
+        color: var(--muted);
+        border: 1px solid var(--border);
+    }
+
+    /* page-header section label */
+    .sec-breadcrumb {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* 🔥 สำคัญ */
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    /* LEFT */
+    .bc-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        color: var(--muted);
+    }
+
+        .bc-left span {
+            color: var(--border);
+        }
+
+    .bc-current {
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    /* RIGHT (buttons) */
+    .bc-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+        /* ปรับปุ่มให้ดู modern */
+        .bc-actions .btn {
+            padding: 4px 12px;
+            font-size: 0.72rem;
+            border-radius: 8px;
+        }
+
+        /* hover */
+        .bc-actions .btn-primary {
+            background: var(--accent);
+            border: none;
+        }
+
+        .bc-actions .btn-light {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+        }
+
+    /* empty */
+    .empty-detail {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: var(--muted);
+    }
+
+        .empty-detail i {
+            font-size: 2rem;
+            opacity: .3;
+        }
+
+    /* toast */
+    #toast {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        background: #065f46;
+        color: #d1fae5;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity .2s;
+        pointer-events: none;
+        z-index: 99;
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="page-content">
+
+    <div class="page-header">
+        <div>
+            <div class="page-title">Approval Hierarchy</div>
+            <div class="page-sub" id="orgDateSub">Approval Hierarchy — @DateTime.Now.ToString("dddd, MMMM d yyyy")</div>
+        </div>
+    </div>
+    <div class="bottom-grid-approve">
+
+        <!-- Left: Tree -->
+        <div class="card-box">
+            
+            <div class="search-wrap">
+                <i class="bi bi-search"></i>
+                <input type="text" class="filter-input" id="searchInput" placeholder="Search Division / department / section..." oninput="filterTree(this.value)">
+            </div>
+            <div class="tree-body" id="treeBody">
+                <div style="padding:16px; text-align:center; color:var(--muted); font-size:0.8rem">
+                    <div class="spinner-border spinner-border-sm me-2"></div> Loading...
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Detail -->
+        <div class="card-box" id="detailPanel">
+            
+            <div class="empty-detail">
+                <i class="bi bi-clipboard-check"></i>
+                <div style="font-size:0.85rem">เลือก Section จากเมนูซ้าย</div>
+                <div style="font-size:0.78rem">เพื่อจัดการผู้มีสิทธิ์อนุมัติ</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="apModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content"
+             style="border-radius:12px; border:1px solid #e2e8f0; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+
+            <!-- Header -->
+            <div style="padding:16px 20px 14px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between;">
+                <div>
+                    <div style="font-size:15px; font-weight:600;" id="apModalTitle">เลือกผู้อนุมัติ</div>
+                    <div style="font-size:12px; color:#6b7280; margin-top:3px" id="apModalSub"></div>
+                </div>
+                <button type="button" class="btn-close" onclick="closeApModal()"></button>
+            </div>
+
+            <!-- Search -->
+            <div style="padding:12px 16px; border-bottom:1px solid #f1f5f9;">
+                <input id="apSearch" type="text"
+                       placeholder="ค้นหาชื่อหรือรหัสพนักงาน..."
+                       oninput="filterApList(this.value)"
+                       style="width:100%; padding:8px 12px; border:1px solid #cbd5e0; border-radius:8px; font-size:13px; background:#f8fafc;">
+            </div>
+
+            <!-- Employee List -->
+            <div id="apList"
+                 style="overflow-y:auto; max-height:50vh; padding:6px 0;">
+            </div>
+
+            <!-- Footer -->
+            <div style="padding:12px 20px; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end;">
+                <button class="btn btn-light" onclick="closeApModal()">ยกเลิก</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    // ════════════════════════════════════════════════════════
+    //  CONFIG
+    // ════════════════════════════════════════════════════════
+    const LV = [
+        { key:'l1', label:'L1', title:'Supervisor / Engineer', tagCls:'tag-l1', chipBg:'#ecfdf5', chipC:'#065f46' },
+        { key:'l2', label:'L2', title:'Section Manager',       tagCls:'tag-l2', chipBg:'#eef1ff', chipC:'#3730a3' },
+        { key:'l3', label:'L3', title:'Department Manager',    tagCls:'tag-l3', chipBg:'#fffbeb', chipC:'#92400e' },
+        { key:'l4', label:'L4', title:'General Manager',       tagCls:'tag-l4', chipBg:'#fff1f2', chipC:'#9f1239' },
+    ];
+
+    // ════════════════════════════════════════════════════════
+    //  STATE
+    // ════════════════════════════════════════════════════════
+    let RAW           = [];       // ข้อมูลจาก server (source of truth)
+    let EMPLOYEES     = [];       // employee master
+    let DIRTY         = {};       // { rowId: { l1:{id,name}, l2:... } }  — เก็บเฉพาะที่เปลี่ยน
+    let selSec        = null;
+    let expandedDivs  = new Set();
+    let expandedDepts = new Set();
+    let _apModal      = { rid: null, lk: null };
+    let _bsModal      = null;     // Bootstrap Modal instance
+
+    // ════════════════════════════════════════════════════════
+    //  BOOT
+    // ════════════════════════════════════════════════════════
+    fetch('@Url.Action("GetHierarchy", "MasterData")')
+        .then(r => r.json())
+        .then(data => { RAW = data; renderTree(''); });
+
+    fetch('@Url.Action("GetEmployees", "MasterData")')
+        .then(r => r.json())
+        .then(data => { EMPLOYEES = data; });
+
+   
+   
+
+    // ════════════════════════════════════════════════════════
+    //  DIRTY HELPERS
+    // ════════════════════════════════════════════════════════
+
+    // คืน ap ที่ "มีผล" ณ ขณะนี้ (dirty > RAW)
+    function currentAp(rowId, lk) {
+        return (DIRTY[rowId] && DIRTY[rowId][lk] !== undefined)
+            ? DIRTY[rowId][lk]
+            : RAW.find(r => r.id === rowId)?.ap[lk] ?? null;
+    }
+
+    // เซต dirty
+    function setDirty(rowId, lk, value) {
+        if (!DIRTY[rowId]) DIRTY[rowId] = {};
+        DIRTY[rowId][lk] = value;   // null = ลบ
+    }
+
+    // ตรวจว่า row นี้มีของที่ dirty ไหม
+    function isRowDirty(rowId) {
+        return !!(DIRTY[rowId] && Object.keys(DIRTY[rowId]).length > 0);
+    }
+
+    // dirty count ทั้งหมด (จำนวน cell ที่เปลี่ยน)
+    function totalDirty() {
+        return Object.values(DIRTY).reduce((s, o) => s + Object.keys(o).length, 0);
+    }
+
+    // ════════════════════════════════════════════════════════
+    //  TREE
+    // ════════════════════════════════════════════════════════
+    function filled(row) {
+        return LV.filter(lv => currentAp(row.id, lv.key)).length;
+    }
+
+    function dotColor(sec) {
+        const rows  = RAW.filter(r => r.sec === sec);
+        const total = rows.length * LV.length;
+        const f     = rows.reduce((s, r) => s + filled(r), 0);
+        if (f === 0)     return 'var(--border)';
+        if (f === total) return 'var(--done)';
+        return 'var(--warn)';
+    }
+
+    function renderTree(q) {
+        const ql  = q.toLowerCase();
+        const map = {};
+        RAW.forEach(r => {
+            if (!map[r.div]) map[r.div] = {};
+            if (!map[r.div][r.dept]) map[r.div][r.dept] = new Set();
+            map[r.div][r.dept].add(r.sec);
+        });
+
+        let h = '';
+        Object.entries(map).forEach(([div, depts]) => {
+            const allSecs = Object.values(depts).flatMap(s => [...s]);
+            if (ql && !div.toLowerCase().includes(ql) && !allSecs.some(s => s.toLowerCase().includes(ql))) return;
+            const isExpDiv = expandedDivs.has(div);
+
+            h += `<div>
+                <div class="t-div" onclick="togDiv('${esc(div)}')">
+                    <span class="t-arrow ${isExpDiv ? 'open':''}">▶</span>
+                    <span style="flex:1">${esc(div)}</span>
+                    <span class="t-cnt">${allSecs.length}</span>
+                </div>
+                <div style="display:${isExpDiv ? 'block':'none'}">`;
+
+            Object.entries(depts).forEach(([dept, secs]) => {
+                const secArr   = [...secs].sort();
+                if (ql && !div.toLowerCase().includes(ql) && !dept.toLowerCase().includes(ql) && !secArr.some(s => s.toLowerCase().includes(ql))) return;
+                const deptKey  = div + '|' + dept;
+                const isExpDpt = expandedDepts.has(deptKey);
+
+                h += `<div style="margin-left:10px">
+                    <div class="t-dept" onclick="togDept('${esc(deptKey)}')">
+                        <span class="t-arrow ${isExpDpt ? 'open':''}">▶</span>
+                        <span style="flex:1">${esc(dept)}</span>
+                        <span class="t-cnt">${secArr.length}</span>
+                    </div>
+                    <div style="display:${isExpDpt ? 'block':'none'}; margin-left:14px">`;
+
+                secArr.forEach(sec => {
+                    if (ql && !sec.toLowerCase().includes(ql) && !div.toLowerCase().includes(ql)) return;
+                    const cnt   = RAW.filter(r => r.sec === sec).length;
+                    const dc    = dotColor(sec);
+                    const isAct = sec === selSec;
+
+                    // ตรวจว่า sec นี้มี dirty row ไหม
+                    const secDirty = RAW.filter(r => r.sec === sec).some(r => isRowDirty(r.id));
+
+                    h += `<div class="t-sec ${isAct ? 'active':''}" onclick="selectSec('${esc(sec)}')">
+                        <div class="t-dot" style="background:${dc}"></div>
+                        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sec)}</span>
+                        ${secDirty ? `<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:99px;margin-right:2px;white-space:nowrap;">แก้ไข</span>` : ''}
+                        <span class="t-cnt">H×${cnt}</span>
+                    </div>`;
+                });
+
+                h += `</div></div>`;
+            });
+            h += `</div></div>`;
+        });
+
+        document.getElementById('treeBody').innerHTML = h
+            || `<div style="padding:16px;font-size:0.8rem;color:var(--muted)">ไม่พบข้อมูล</div>`;
+    }
+
+    function togDiv(key) {
+        expandedDivs.has(key) ? expandedDivs.delete(key) : expandedDivs.add(key);
+        renderTree(document.getElementById('searchInput').value);
+    }
+    function togDept(key) {
+        expandedDepts.has(key) ? expandedDepts.delete(key) : expandedDepts.add(key);
+        renderTree(document.getElementById('searchInput').value);
+    }
+    function filterTree(q) { renderTree(q); }
+    function selectSec(sec) {
+        selSec = sec;
+        renderTree(document.getElementById('searchInput').value);
+        renderDetail();
+    }
+
+    // ════════════════════════════════════════════════════════
+    //  DETAIL PANEL
+    // ════════════════════════════════════════════════════════
+    function ini(name) {
+        return (name || '').replace(/คุณ/g,'').trim().slice(0,2) || '?';
+    }
+
+    function renderDetail() {
+        if (!selSec) return;
+        const rows   = RAW.filter(r => r.sec === selSec).sort((a,b) => a.hier - b.hier);
+        const r0     = rows[0];
+        const secHasDirty = rows.some(r => isRowDirty(r.id));
+
+        let h = `<div class="sec-breadcrumb">
+            <div class="bc-left">
+                <span>${esc(r0.div)}</span><span>›</span>
+                <span>${esc(r0.dept)}</span><span>›</span>
+                <strong class="bc-current">${esc(selSec)}</strong>
+                <span class="stat-badge badge-part">${rows.length} hierarchy</span>
+                
+            </div>
+            <div class="bc-actions">
+            ${secHasDirty
+                    ? `<span style="font-size:11px;background:#fef3c7;color:#92400e;padding:2px 10px;border-radius:99px;font-weight:500;">
+                           มีการแก้ไข ${totalDirty()} รายการ
+                       </span>`
+                    : ''}
+                <button onclick="resetChanges()" class="btn btn-light btn-sm" ${secHasDirty ? '' : 'disabled'}>ยกเลิก</button>
+                <button onclick="saveAll()"      class="btn btn-primary btn-sm" ${secHasDirty ? '' : 'disabled'}>บันทึก</button>
+            </div>
+        </div>`;
+
+        rows.forEach(row => {
+            const f       = LV.filter(lv => currentAp(row.id, lv.key)).length;
+            const isDirty = isRowDirty(row.id);
+            const badgeCls = f === LV.length ? 'badge-full' : f > 0 ? 'badge-part' : 'badge-empty';
+            const badgeTxt = f === LV.length ? 'ครบ' : f > 0 ? `${f}/${LV.length}` : 'ว่าง';
+
+            h += `<div class="card-box" style="${isDirty ? 'border-left:3px solid #f59e0b;' : ''}">
+                <div class="card-title">
+                    Hierarchy ${row.hier}
+                    <span class="stat-badge ${badgeCls}">${badgeTxt}</span>
+                    ${isDirty
+                        ? `<span style="font-size:11px;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:99px;">มีการแก้ไข</span>`
+                        : ''}
+                </div>`;
+
+            LV.forEach(lv => {
+                const ap      = currentAp(row.id, lv.key);
+                const changed = DIRTY[row.id]?.[lv.key] !== undefined;
+                let col = '';
+
+                if (ap) {
+                    col = `<div class="ap-chip" style="background:${lv.chipBg};color:${lv.chipC};${changed ? 'outline:2px solid #f59e0b;' : ''}">
+                               <div class="ap-av">${ini(ap.name)}</div>
+                               <div>
+                                   <div class="ap-name">${esc(ap.name)}</div>
+                                   <div class="ap-id">${esc(ap.id)}</div>
+                               </div>
+                           </div>
+                           ${changed ? `<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:99px;">แก้ไข</span>` : ''}
+                           <button class="btn-icon" onclick="openApModal(${row.id},'${lv.key}')" title="แก้ไข">
+                               <i class="bi bi-pencil"></i>
+                           </button>
+                           <button class="btn-icon del" onclick="clr(${row.id},'${lv.key}')" title="ลบ">
+                               <i class="bi bi-trash"></i>
+                           </button>`;
+                } else {
+                    col = `<span style="font-size:0.78rem;color:var(--muted);font-style:italic;flex:1">ยังไม่ได้กำหนด</span>
+                           <button class="btn-assign" onclick="openApModal(${row.id},'${lv.key}')">
+                               <i class="bi bi-plus"></i> กำหนด
+                           </button>`;
+                }
+
+                h += `<div class="lvl-row">
+                    <div class="lvl-cell-left">
+                        <span class="task-tag ${lv.tagCls}">${lv.label}</span>
+                        <span style="font-size:0.72rem;color:var(--muted)">${lv.title}</span>
+                    </div>
+                    <div class="lvl-cell-right">${col}</div>
+                </div>`;
+            });
+
+            h += `</div>`;
+        });
+
+        document.getElementById('detailPanel').innerHTML = h;
+    }
+
+    // ════════════════════════════════════════════════════════
+    //  SAVE / RESET
+    // ════════════════════════════════════════════════════════
+
+    // บันทึกเฉพาะ row ที่ dirty
+    async function saveAll() {
+        const dirtyRowIds = Object.keys(DIRTY).filter(rid => Object.keys(DIRTY[rid]).length > 0);
+        if (!dirtyRowIds.length) return;
+
+        // สร้าง payload: array ของ {rowId, level, employeeId, name}  หรือ null (กรณีลบ)
+        const payload = [];
+        dirtyRowIds.forEach(rid => {
+            Object.entries(DIRTY[rid]).forEach(([lk, val]) => {
+                payload.push({
+                    rowId:      parseInt(rid),
+                    level:      lk,
+                    employeeId: val ? val.id   : null,
+                    name:       val ? val.name : null,
+                    isDelete:   val === null
+                });
+            });
+        });
+
+        try {
+            const res = await fetch('@Url.Action("SaveApprovers", "MasterData")', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify(payload)
+            }).then(r => r.json());
+
+            if (res.success) {
+                // Commit dirty → RAW
+                dirtyRowIds.forEach(rid => {
+                    const row = RAW.find(r => r.id === parseInt(rid));
+                    if (!row) return;
+                    Object.entries(DIRTY[rid]).forEach(([lk, val]) => {
+                        row.ap[lk] = val;
+                    });
+                });
+                DIRTY = {};
+                renderDetail();
+                renderTree(document.getElementById('searchInput').value);
+                showToast(`บันทึกเรียบร้อย (${payload.length} รายการ)`);
+            } else {
+                showToast('เกิดข้อผิดพลาด กรุณาลองใหม่');
+            }
+        } catch {
+            showToast('เกิดข้อผิดพลาด กรุณาลองใหม่');
+        }
+    }
+
+    // ยกเลิกการแก้ไขทั้งหมด (เฉพาะ section ที่เปิดอยู่)
+    function resetChanges() {
+        if (!selSec) return;
+        RAW.filter(r => r.sec === selSec).forEach(r => { delete DIRTY[r.id]; });
+        renderDetail();
+        renderTree(document.getElementById('searchInput').value);
+    }
+
+    // ════════════════════════════════════════════════════════
+    //  APPROVER PICKER MODAL
+    // ════════════════════════════════════════════════════════
+              function openApModal(rid, lk) {
+        const modalEl = document.getElementById('apModal');
+
+        // 
+        _bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+        const row = RAW.find(r => r.id === rid);
+        const lv  = LV.find(l => l.key === lk);
+        const ap  = currentAp(rid, lk);
+
+        _apModal = { rid, lk };
+
+        document.getElementById('apModalTitle').textContent =
+            `เลือกผู้อนุมัติ — ${lv.label}: ${lv.title}`;
+        document.getElementById('apModalSub').textContent =
+            `Section: ${row.sec} · Hierarchy ${row.hier}`;
+
+        document.getElementById('apSearch').value = '';
+        renderApList('', ap?.id);
+
+        _bsModal.show();
+    }
+
+            function closeApModal() {
+        if (_bsModal) _bsModal.hide();
+        _apModal = { rid: null, lk: null };
+    }
+
+    function filterApList(q) {
+        const ap = currentAp(_apModal.rid, _apModal.lk);
+        renderApList(q, ap?.id);
+    }
+
+    function renderApList(q, currentId) {
+        const ql   = (q || '').toLowerCase().trim();
+        const list = document.getElementById('apList');
+
+        const filtered = EMPLOYEES.filter(e =>
+            !ql || e.name.toLowerCase().includes(ql) || e.id.toLowerCase().includes(ql)
+        );
+
+        if (!filtered.length) {
+            list.innerHTML = `<div style="padding:28px;text-align:center;font-size:13px;color:#9ca3af;">
+                <div style="font-size:24px;margin-bottom:8px">🔍</div>
+                ไม่พบพนักงานที่ตรงกับการค้นหา
+            </div>`;
+            return;
+        }
+
+        list.innerHTML = filtered.map(e => {
+            const isCurrent = e.id === currentId;
+            const initials  = e.name.replace(/คุณ/g,'').trim().slice(0,2) || '??';
+            return `<div onclick="selectApprover('${esc(e.id)}','${esc(e.name)}')"
+                style="display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;
+                       background:${isCurrent ? '#eff6ff' : 'transparent'};
+                       border-left:3px solid ${isCurrent ? '#93c5fd' : 'transparent'};"
+                onmouseenter="this.style.background='#f8fafc'"
+                onmouseleave="this.style.background='${isCurrent ? '#eff6ff' : 'transparent'}'">
+                <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;flex-shrink:0;
+                            display:flex;align-items:center;justify-content:center;
+                            font-size:12px;font-weight:600;color:#1d4ed8;">
+                    ${esc(initials)}
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:13px;font-weight:500;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        ${esc(e.name)}
+                    </div>
+                    <div style="font-size:12px;color:#6b7280;margin-top:1px;">
+                        ${esc(e.id)}${e.dept ? ' · ' + esc(e.dept) : ''}${e.title ? ' · ' + esc(e.title) : ''}
+                    </div>
+                </div>
+                ${isCurrent
+                    ? `<span style="font-size:11px;background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:99px;">ปัจจุบัน</span>`
+                    : ''}
+            </div>`;
+        }).join('');
+    }
+
+    // เลือกคน → เก็บใน DIRTY (ยังไม่ยิง API)
+    function selectApprover(empId, empName) {
+        const { rid, lk } = _apModal;
+        if (rid == null || !lk) return;
+
+        setDirty(rid, lk, { id: empId, name: empName });
+        _bsModal.hide();
+        renderDetail();
+        renderTree(document.getElementById('searchInput').value);
+    }
+
+    // ════════════════════════════════════════════════════════
+    //  CLEAR — เก็บใน DIRTY เช่นกัน (null = ลบ)
+    // ════════════════════════════════════════════════════════
+    function clr(rid, lk) {
+        setDirty(rid, lk, null);
+        renderDetail();
+        renderTree(document.getElementById('searchInput').value);
+    }
+
+    // ════════════════════════════════════════════════════════
+    //  TOAST
+    // ════════════════════════════════════════════════════════
+    let toastTimer;
+    function showToast(msg) {
+        const el    = document.getElementById('toast');
+        const msgEl = document.getElementById('toastMsg');
+        if (!el || !msgEl) return;
+        msgEl.textContent = msg;
+        el.style.opacity  = '1';
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.style.opacity = '0', 2800);
+    }
+
+    // ════════════════════════════════════════════════════════
+    //  UTILS
+    // ════════════════════════════════════════════════════════
+    function esc(s) {
+        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+</script>

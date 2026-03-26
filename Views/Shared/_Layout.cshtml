@@ -1,0 +1,535 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Maintenance Task</title>
+    
+    <!-- Bootstrap CSS (local) -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons (local) -->
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" />
+
+    @* CSS ของ sidebar ใส่ตรงนี้ *@
+    @* CSS ของ sidebar ใส่ตรงนี้ *@
+    <style>
+        .sidebar {
+            width: 240px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 20px;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #003A8F;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 36px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #003A8F;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            margin-bottom: 4px;
+        }
+
+            .nav-item:hover {
+                background: #f0f3ff;
+                color: #003A8F;
+            }
+
+            .nav-item.active {
+                background: #eef1ff;
+                color: #003A8F;
+                font-weight: 600;
+            }
+
+        .nav-section {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin: 20px 0 8px 14px;
+        }
+
+        
+        .main {
+            margin-left: 240px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* ← สำคัญ ห้าม scroll ทั้งหน้า */
+        }
+
+        .page-content {
+            padding: 28px;
+        }
+
+        .tab-bar {
+            display: flex;
+            margin-left: 30px;
+            align-items: flex-end;
+            gap: 2px;
+            padding: 8px 12px 0;
+            background: #f4f6fb;
+            min-height: 44px;
+            overflow-x: auto;
+            flex-shrink: 0;
+            scrollbar-width: none;
+        }
+
+            .tab-bar::-webkit-scrollbar {
+                display: none;
+            }
+
+        .tab-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 14px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            white-space: nowrap;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            color: var(--muted);
+            background: #ffffff;
+            transition: all 0.15s;
+            position: relative;
+            bottom: -1px;
+            user-select: none;
+        }
+
+            .tab-item:hover {
+                color: #003A8F;
+                border-color: #003A8F;
+            }
+
+            .tab-item.active {
+                color: #ffffff;
+                background: #003A8F;
+                border-color: #003A8F;
+                border-bottom-color: #003A8F;
+            }
+
+        /* ── Tab Content Area ── */
+        .tab-content-area {
+            margin: 0 60px 10px 30px;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            background: var(--bg);
+            border-block: none;
+        }
+
+        .tab-panel {
+            display: none;
+            height: 100%;
+            overflow-y: auto;
+            background: #ffffff;
+            padding: 32px 40px;
+            border: none !important; /* ← เพิ่ม */
+            outline: none;
+        }
+
+            .tab-panel.active {
+                display: block;
+                border-top: none;
+            }
+
+            /* Scrollbar สวย */
+            .tab-panel::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .tab-panel::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .tab-panel::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 10px;
+            }
+
+                .tab-panel::-webkit-scrollbar-thumb:hover {
+                    background: var(--muted);
+                }
+
+        /* ── Welcome screen ── */
+        .tab-welcome {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 12px;
+            color: var(--muted);
+            background: var(--bg);
+        }
+
+            .tab-welcome i {
+                font-size: 2.5rem;
+                opacity: 0.4;
+            }
+
+            .tab-welcome p {
+                font-size: 0.85rem;
+            }
+
+        .sidebar-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border-top: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+            .sidebar-profile:hover {
+                background: #f0f3ff;
+            }
+
+
+        .avatar-initials {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #003A8F;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .profile-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-role {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+    </style>
+   
+</head>
+<body>
+
+    @{
+        var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+        var userName = Context.Session.GetString("UserName") ?? "Unknown";
+
+        // ดึง initials ด้วย C#
+        var parts = userName.Trim().Split(' ');
+        var initials = parts.Length == 1
+        ? parts[0][0].ToString()
+        : $"{parts[0][0]}{parts[^1][0]}";
+
+        initials = initials.ToUpper();
+    }
+
+    <!-- Sidebar อยู่ที่นี่ครั้งเดียว -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon"><i class="bi bi-tools"></i></div>
+            Maintenance Task
+        </div>
+        <a href="@Url.Action("Index", "Home")" class="nav-item active"><i class="bi bi-columns-gap me-2"></i> Dashboard</a>
+        <a class="nav-item" onclick="openTab('@Url.Action("MyTaskIndex", "Home")', 'My Task', 'bi-check2-square', 'task')"><i class="bi bi-check2-square me-2"></i> My Tasks</a>
+        <div class="nav-section">Work Center</div>
+        
+
+        <div style="flex:1"></div>
+
+        <!-- Profile อยู่ล่างสุด -->
+        <!-- Sidebar Profile with Dropdown -->
+        <div class="dropup">
+            <div class="sidebar-profile" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer">
+                <div class="avatar-initials">@initials</div>
+                <div style="flex:1; min-width:0">
+                    <div class="profile-name">@userName</div>
+                    <div class="profile-role">
+                        @(Context.Session.GetString("UserRole") ?? "User")
+                    </div>
+                </div>
+                <i class="bi bi-three-dots-vertical text-muted"></i>
+            </div>
+
+            <ul class="dropdown-menu mb-2" style="width:220px">
+                <li>
+                    <a class="dropdown-item" href="@Url.Action("Index", "Profile")">
+                        <i class="bi bi-person me-2"></i> My Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("Index", "MasterData")"
+                       class="dropdown-item @(controller == "MasterData" ? "active" : "")">
+                        <i class="bi bi-layers me-2"></i> Master Data
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="@Url.Action("Settings", "Account")">
+                        <i class="bi bi-gear me-2"></i> Settings
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="@Url.Action("Login", "Home")">
+                        <i class="bi bi-box-arrow-left me-2"></i> Sign Out
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ทุก View มาแสดงตรงนี้ -->
+    <div class="main" id="mainContent">
+        <div class="tab-bar" id="tabBar"></div>
+        <div class="tab-content-area" id="tabContent">
+            <div class="tab-panel active" id="welcomeTab">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+            const tabBar     = document.getElementById('tabBar');
+        const tabContent = document.getElementById('tabContent');
+
+
+        //  OPEN TAB
+        function openTab(url, title, icon, key) {
+
+            let tabId = 'tab-' + key;
+
+            // ถ้ามี tab แล้ว
+            if (document.getElementById(tabId)) {
+                activateTab(tabId);
+                highlightMenu(key);
+                return;
+            }
+
+            // create tab button
+            let tab = document.createElement('div');
+            tab.className = 'tab-item';
+            tab.id = tabId;
+            tab.innerHTML = `
+                <i class="bi ${icon}"></i>
+                <span>${title}</span>
+                <span class="tab-close" id="close-${tabId}">
+                    <i class="bi bi-x"></i>
+                </span>`;
+            tabBar.appendChild(tab);
+
+            // create panel
+            let panel = document.createElement('div');
+            panel.className = 'tab-panel';
+            panel.id = tabId + '-content';
+            panel.innerHTML = `<div class="tab-loading">
+                <div class="spinner-border spinner-border-sm"></div> Loading...
+            </div>`;
+            tabContent.appendChild(panel);
+
+            // load content
+            loadContent(url, panel);
+
+            // click tab
+            tab.addEventListener('click', function(e) {
+                if (e.target.closest('.tab-close')) return;
+                activateTab(tabId);
+                highlightMenu(key);
+            });
+
+            // close tab
+            document.getElementById('close-' + tabId).addEventListener('click', function(e) {
+                e.stopPropagation();
+                tab.remove();
+                panel.remove();
+
+                const last = tabBar.querySelector('.tab-item:last-child');
+                if (last) activateTab(last.id);
+            });
+
+            activateTab(tabId);
+            highlightMenu(key);
+        }
+
+
+       
+        //  LOAD CONTENT (SPA)
+        function loadContent(url, panel){
+
+            if(!panel){
+                panel = document.querySelector(".tab-panel.active");
+            }
+
+            if(!panel) return;
+
+            panel.innerHTML = `
+                <div style="padding:30px">
+                    <div class="spinner-border"></div>
+                    Loading...
+                </div>
+            `;
+
+            fetch(url)
+            .then(res => res.text())
+            .then(html => {
+
+                const doc = new DOMParser().parseFromString(html,"text/html");
+                doc.querySelectorAll("link[rel='stylesheet']").forEach(link => {
+                    const href = link.getAttribute("href");
+                    
+                    if (!document.querySelector(`link[href="${href}"]`)) {
+                        let newLink = document.createElement("link");
+                        newLink.rel = "stylesheet";
+                        newLink.href = href;
+                        document.head.appendChild(newLink);
+                    }
+                });
+                
+                doc.querySelectorAll("style").forEach(style => {
+                    document.head.appendChild(style);
+                });
+
+                const content = doc.querySelector(".page-content") || doc.body;
+
+                panel.innerHTML = content.innerHTML;
+
+                //  init หลัง load
+                initModal(panel);
+
+            })
+            .catch(()=>{
+                panel.innerHTML = `
+                    <div style="padding:30px;color:red">
+                        Failed to load
+                    </div>
+                `;
+            });
+        }
+
+
+        function initModal(container){
+
+            //  ย้าย modal ไป body (กัน z-index พัง)
+            container.querySelectorAll('.modal').forEach(modal => {
+
+                const exists = document.getElementById(modal.id);
+
+                if(!exists){
+                    document.body.appendChild(modal);
+                }
+
+            });
+
+            //  bind click เปิด modal
+            container.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
+
+                btn.addEventListener("click", function(){
+
+                    const target = this.getAttribute("data-bs-target");
+
+                    if(!target) return;
+
+                    openModal(target);
+
+                });
+
+            });
+        }
+
+
+        function openModal(target){
+
+            // cleanup ก่อนเปิด
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style = '';
+
+            const modalEl = document.querySelector(target);
+
+            if(!modalEl) return;
+
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+
+        document.addEventListener("hidden.bs.modal", function () {
+
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+
+            document.body.classList.remove('modal-open');
+            document.body.style = '';
+
+        });
+
+
+        function activateTab(tabId) {
+
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+            document.getElementById(tabId)?.classList.add('active');
+            document.getElementById(tabId + '-content')?.classList.add('active');
+        }
+
+
+
+        function highlightMenu(key) {
+
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+
+            const found = Array.from(document.querySelectorAll('.nav-item'))
+                .find(i => i.getAttribute('onclick')?.includes(`'${key}'`));
+
+            found?.classList.add('active');
+        }
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

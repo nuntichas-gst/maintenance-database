@@ -1,0 +1,538 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — Maintenance Task</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f6fb;
+            --surface: #ffffff;
+            --border: #e8ecf4;
+            --text: #1a1f36;
+            --muted: #8892a4;
+            --accent: #4f6ef7;
+            --accent-light: #eef1ff;
+            --done: #22c55e;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: stretch;
+        }
+
+        /* ── Steel Brand Colors ── */
+        :root {
+            --nippon: #003A8F; /* Nippon Steel — Navy Blue  */
+            --gsteel: #D71920; /* G Steel      — Industrial Red */
+            --gjsteel: #00A0E3; /* GJ Steel     — Steel Blue */
+        }
+
+        /* ── Left Panel ── */
+        .left-panel {
+            width: 45%;
+            background: var(--nippon);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            /* วงกลม accent ใช้ GJ Steel Blue */
+            .left-panel::before {
+                content: '';
+                position: absolute;
+                top: -100px;
+                right: -100px;
+                width: 400px;
+                height: 400px;
+                background: var(--gjsteel);
+                border-radius: 50%;
+                opacity: 0.12;
+            }
+
+            /* วงกลม accent ใช้ G Steel Red */
+            .left-panel::after {
+                content: '';
+                position: absolute;
+                bottom: -80px;
+                left: -60px;
+                width: 300px;
+                height: 300px;
+                background: var(--gsteel);
+                border-radius: 50%;
+                opacity: 0.1;
+            }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--gsteel);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .brand-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-sub {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .left-content {
+            animation: fadeUp 0.5s ease 0.1s both;
+        }
+
+        .left-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            letter-spacing: -0.03em;
+        }
+
+            /* highlight สี GJ Steel Blue */
+            .left-title span {
+                color: var(--gjsteel);
+            }
+
+        .left-desc {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.6;
+            max-width: 320px;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+            /* dot สลับสี 3 brand */
+            .feature-item:nth-child(1) .feature-dot {
+                background: var(--gjsteel);
+            }
+
+            .feature-item:nth-child(2) .feature-dot {
+                background: var(--gsteel);
+            }
+
+            .feature-item:nth-child(3) .feature-dot {
+                background: var(--gjsteel);
+            }
+
+            .feature-item:nth-child(4) .feature-dot {
+                background: var(--gsteel);
+            }
+
+        .feature-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .left-footer {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.25);
+            font-family: 'DM Mono', monospace;
+            animation: fadeUp 0.5s ease 0.2s both;
+        }
+
+        /* ── Brand stripe bar ── */
+        .brand-stripe {
+            display: flex;
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 32px;
+            gap: 3px;
+        }
+
+        .stripe-nippon {
+            flex: 1;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .stripe-gsteel {
+            flex: 1;
+            background: var(--gsteel);
+        }
+
+        .stripe-gjsteel {
+            flex: 1;
+            background: var(--gjsteel);
+        }
+
+        /* ── Right Panel ── */
+        .right-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px;
+        }
+
+        .form-box {
+            width: 100%;
+            max-width: 400px;
+            animation: fadeUp 0.5s ease 0.15s both;
+        }
+
+        .form-heading {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .form-sub {
+            font-size: 0.875rem;
+            color: var(--muted);
+            margin-bottom: 36px;
+        }
+
+        /* Input Group */
+        .field-group {
+            margin-bottom: 20px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 8px;
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .field-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text);
+            background: var(--surface);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+            .field-input:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(79,110,247,0.12);
+            }
+
+            .field-input.is-invalid {
+                border-color: var(--error);
+            }
+
+        /* Password toggle */
+        .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+            .toggle-pw:hover {
+                color: var(--accent);
+            }
+
+        /* Error alert */
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: var(--error);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .text-danger-sm {
+            font-size: 0.78rem;
+            color: var(--error);
+            margin-top: 5px;
+        }
+
+        /* Forgot */
+        .forgot-link {
+            text-align: right;
+            margin-top: -12px;
+            margin-bottom: 24px;
+        }
+
+            .forgot-link a {
+                font-size: 0.8rem;
+                color: var(--accent);
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+                .forgot-link a:hover {
+                    text-decoration: underline;
+                }
+
+        /* Submit */
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+        }
+
+            .btn-submit:hover {
+                background: #3d5ce6;
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(79,110,247,0.3);
+            }
+
+            .btn-submit:active {
+                transform: translateY(0);
+            }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+
+            .divider::before, .divider::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+
+        /* Sign Up */
+        .signup-row {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+            .signup-row a {
+                color: var(--accent);
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+                .signup-row a:hover {
+                    text-decoration: underline;
+                }
+
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .left-panel {
+                display: none;
+            }
+
+            .right-panel {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Left Panel -->
+    <div class="left-panel">
+        <div class="brand">
+            <div class="brand-icon"><i class="bi bi-wrench-adjustable" style="color:white"></i></div>
+            <div>
+                <div class="brand-name">Maintenance Task</div>
+                <div class="brand-sub"></div>
+            </div>
+        </div>
+
+        <div class="left-content">
+            <!-- Stripe bar 3 สี -->
+            <div class="brand-stripe">
+                <div class="stripe-nippon"></div>
+                <div class="stripe-gsteel"></div>
+                <div class="stripe-gjsteel"></div>
+            </div>
+
+            <div class="left-title">
+                Manage your<br><span>maintenance</span><br>operations.
+            </div>
+            
+            <div class="feature-list">
+                <div class="feature-item"><div class="feature-dot"></div> Asset & Equipment Tracking</div>
+                <div class="feature-item"><div class="feature-dot"></div> Maintenance Scheduling</div>
+                <div class="feature-item"><div class="feature-dot"></div> Work Order Management</div>
+                <div class="feature-item"><div class="feature-dot"></div> Real-time Dashboard</div>
+            </div>
+        </div>
+
+        <div class="left-footer"></div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
+        <div class="form-box">
+
+            <div class="form-heading">Welcome back</div>
+            <div class="form-sub">Sign in to your account to continue</div>
+
+            @* Error Message *@
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert-error">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    @ViewBag.ErrorMessage
+                </div>
+            }
+
+           
+
+            @* Email *@
+            <div class="field-group">
+                <label class="field-label">Email</label>
+                <div class="field-wrap">
+                    <i class="bi bi-envelope field-icon"></i>
+                    <input type="email" name="UserEmail" class="field-input" placeholder="your@email.com" required>
+                </div>
+                <div class="text-danger-sm"></div>
+            </div>
+
+            @* Password *@
+            <div class="field-group">
+                <label class="field-label">Password</label>
+                <div class="field-wrap">
+                    <i class="bi bi-lock field-icon"></i>
+                    <input type="password" name="UserPassword" id="passwordInput" class="field-input" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-pw" onclick="togglePassword()">
+                        <i class="bi bi-eye" id="pwIcon"></i>
+                    </button>
+                </div>
+                <div class="text-danger-sm"></div>
+            </div>
+
+            @* Forgot Password *@
+            <div class="forgot-link">
+                <a href="#">Forgot password?</a>
+            </div>
+
+            @* Submit *@
+            <button type="button" class="btn-submit" 
+        onclick="window.location.href='@Url.Action("Index", "Home")'">
+    Sign In
+</button>
+                        
+
+            <div class="divider">
+                <div class="text-danger-sm">*
+                </div>Use the same G-APP account.
+            </div>
+
+           
+
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            const icon  = document.getElementById('pwIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

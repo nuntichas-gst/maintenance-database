@@ -1,0 +1,902 @@
+﻿@{
+    Layout = "~/Views/Shared/_MasterDataLayout.cshtml";
+}
+
+    <style>
+        :root {
+            --bg: #f4f6fb;
+            --surface: #ffffff;
+            --border: #e8ecf4;
+            --text: #1a1f36;
+            --muted: #8892a4;
+            --accent: #4f6ef7;
+            --todo: #94a3b8;
+            --inprogress: #4f6ef7;
+            --done: #22c55e;
+            --overdue: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 20px;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 36px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            margin-bottom: 4px;
+        }
+
+            .nav-item:hover {
+                background: #f0f3ff;
+                color: var(--accent);
+            }
+
+            .nav-item.active {
+                background: #eef1ff;
+                color: var(--accent);
+                font-weight: 600;
+            }
+
+        .nav-section {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin: 20px 0 8px 14px;
+        }
+
+        /* Main */
+
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .page-sub {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .btn-new {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+            .btn-new:hover {
+                opacity: 0.85;
+            }
+
+    .btn-gen {
+        background: #7C3AED;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+        /* Stat Cards */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px 24px;
+            position: relative !important;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            animation: fadeUp 0.5s ease both;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 24px rgba(79,110,247,0.1);
+            }
+
+            .stat-card:nth-child(1) {
+                animation-delay: 0.05s;
+            }
+
+            .stat-card:nth-child(2) {
+                animation-delay: 0.1s;
+            }
+
+            .stat-card:nth-child(3) {
+                animation-delay: 0.15s;
+            }
+
+            .stat-card:nth-child(4) {
+                animation-delay: 0.2s;
+            }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-bottom: 14px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .stat-badge {
+            position: absolute !important;
+            top: 20px;
+            right: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        /* Bottom Grid */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .card-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            animation: fadeUp 0.5s ease both;
+            animation-delay: 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .card-title span {
+                color: var(--muted);
+                font-size: 0.8rem;
+                font-weight: 500;
+            }
+
+        
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+            .legend-item:last-child {
+                border-bottom: none;
+            }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .legend-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-count {
+            font-weight: 600;
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* Task List */
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.88rem;
+            transition: background 0.15s;
+        }
+
+            .task-item:last-child {
+                border-bottom: none;
+            }
+
+        .task-check {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+        }
+
+            .task-check.done {
+                background: var(--done);
+                border-color: var(--done);
+                color: white;
+            }
+
+            .task-check.inprogress {
+                border-color: var(--inprogress);
+            }
+
+        .task-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+            .task-name.done-text {
+                text-decoration: line-through;
+                color: var(--muted);
+            }
+
+        .task-tag {
+            font-size: 1.0rem;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+
+        .tag-todo {
+            background: #f1f5f9;
+            color: var(--todo);
+        }
+
+        .tag-inprogress {
+            background: #eef1ff;
+            color: var(--inprogress);
+        }
+
+        .tag-done {
+            background: #f0fdf4;
+            color: var(--done);
+        }
+
+        .tag-overdue {
+            background: #fef2f2;
+            color: var(--overdue);
+        }
+
+        
+
+        .chart-container {
+            margin-top: 20px;
+        }
+
+        .vchart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+        }
+
+        .bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bar {
+            width: 32px;
+            background: #2563eb;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .bar-label {
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        
+
+        .page-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+            .page-btn.active {
+                background: #2563eb;
+                color: white;
+                border: none;
+            }
+
+        .action-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 4px 9px;
+            font-size: 0.78rem;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+            .action-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+        .pagination-circle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 16px;
+        }
+
+        .page-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            transition: all 0.15s;
+        }
+
+            .page-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            .page-btn.active {
+                background: var(--accent);
+                color: white;
+                border-color: var(--accent);
+            }
+
+            .page-btn.disabled {
+                opacity: 0.35;
+                pointer-events: none;
+            }
+
+    .chart-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+    }
+
+    .chart-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .chart-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 2px;
+    }
+
+    .chart-sub {
+        font-size: 0.82rem;
+        color: var(--muted);
+    }
+
+    .chart-legend {
+        display: flex;
+        gap: 16px;
+        font-size: 0.78rem;
+        color: var(--muted);
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .legend-box {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+    }
+
+    .legend-line {
+        width: 16px;
+        border-top: 2px dashed #E24B4A;
+    }
+
+    .stat-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-mini {
+        background: var(--bg);
+        border-radius: 10px;
+        padding: 12px 16px;
+    }
+
+    .stat-mini-label {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 4px;
+    }
+
+    .stat-mini-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .stat-mini-sub {
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin-top: 2px;
+    }
+</style>
+  
+
+
+    <!-- Main -->
+    <div class="page-content">
+        <div class="page-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+            <a class="back-btn" data-url="@Url.Action("MaintenanceScheduleIndex", "MasterData")" style=" cursor:pointer; color:var(--text); text-decoration:none;">
+                    <i class="bi bi-arrow-left-circle" style="font-size:1.4rem;"></i>
+                </a>
+                <div>
+                    <div class="page-title">@ViewBag.Title</div>
+                    <div class="page-sub">@ViewBag.Subtitle — @DateTime.Now.ToString("dddd, MMMM d yyyy")</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+
+            @if (ViewBag.Title == "Control Asset & Schedule Management")
+            {
+                <button class="btn-gen" data-bs-toggle="modal" data-bs-target="#generateModal">
+                    <i class="bi bi-magic me-1"></i>
+                Auto Generate
+                </button>
+            }
+    <button class="btn-new" data-bs-toggle="modal" data-bs-target="#insertModal">
+        <i class="bi bi-plus me-1"></i>New @ViewBag.Texttitle
+    </button>
+
+    @if (ViewBag.Title == "Maintenance Indicators")
+    {
+        <button class="btn-new" data-bs-toggle="modal" data-bs-target="#unitModal">
+            <i class="bi bi-gear me-1"></i>Manage Unit
+        </button>
+    }
+</div>
+           
+
+        </div>
+    @if (ViewBag.Title == "Control Asset & Schedule Management")
+    {
+        <div class="bottom-grid">
+            <div class="card-box" style="animation-delay:0.35s">
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <div class="page">
+
+                        <div class="toolbar">
+                            <div class="search">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+                                <input id="sq" type="text" placeholder="Search asset by name or code..." oninput="doSearch(this.value)" />
+                            </div>
+                            <button class="action-btn" onclick="">
+                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+                                Refresh
+                            </button>
+                            <button class="action-btn danger" onclick="">
+                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /></svg>
+                                Clear All
+                            </button>
+                        </div>
+
+                        <div class="meta">
+                            <div class="meta-count" id="metaCount"></div>
+                            <div class="meta-hint">
+                                <div class="legend-item"><div class="leg-dot" style="background:#86efac;"></div><span>Assigned</span></div>
+                                <div class="legend-item"><div class="leg-dot" style="background:var(--border);"></div><span>Not assigned</span></div>
+                                <div class="legend-item"><span style="color:#f59e0b;font-size:11px;">★</span><span>Required</span></div>
+                            </div>
+                        </div>
+
+                        <div class="cards" id="cards"></div>
+                    </div>
+                </div>
+
+                <div style="flex:1"></div>
+
+                <!-- Pagination — แสดงเมื่อมีมากกว่า 1 page -->
+                <div class="pagination-circle" id="paginationBox" style="display:none"></div>
+
+            </div>
+        </div>
+    }
+    else{
+        <div class="bottom-grid">
+            <div class="card-box" style="animation-delay:0.35s">
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table" id="dataTable">
+                    <thead>
+                        <tr>
+                            @foreach (var col in ViewBag.Columns)
+                            {
+                                <th>@col</th>
+                            }
+                        </tr>
+                    </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="flex:1"></div>
+
+                <!-- Pagination — แสดงเมื่อมีมากกว่า 1 page -->
+                <div class="pagination-circle" id="paginationBox" style="display:none"></div>
+
+    </div>
+    </div>
+    }
+
+   
+@* ── Modal ── *@
+    <div class="modal fade" id="insertModal" tabindex="-1" aria-labelledby="insertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 20px 60px rgba(0,0,0,0.15)">
+
+                @* Header *@
+                <div class="modal-header" style="border-bottom:1px solid var(--border); padding:20px 24px">
+                    <h5 class="modal-title fw-bold" id="insertModalLabel">
+                        <i class="bi bi-plus-circle me-2" style="color:var(--accent)"></i> Add New Standard
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body" style="padding:24px">
+
+                    @* Standard Code *@
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:0.85rem"><span class="text-danger">*</span>Standard Code </label>
+                        <input type="text" name="Code" id="inputName" class="form-control" placeholder="Enter Code" required>
+                        <div class="invalid-feedback">Please enter a standard code.</div>
+                    </div>
+
+                    @* Decs *@
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:0.85rem">
+                            <span class="text-danger">*</span> Description
+                        </label>
+                        <textarea name="Decs" class="form-control" rows="4"
+                                  placeholder="Enter description..."
+                                  style="resize:none"></textarea>
+                    </div>
+
+                    @* 2 คอลัมน์ — Rank + Status *@
+                    <div class="row g-3 mb-3">
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold" style="font-size:0.85rem"><span class="text-danger">*</span>Standards Type</label>
+                            <select name="Rank" class="form-select" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="S">Rank S - Super Critical</option>
+                                <option value="A">Rank A - Critical</option>
+                                <option value="B">Rank B - Important</option>
+                                <option value="C">Rank C - Normal</option>
+
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+
+                @* Footer *@
+                <div class="modal-footer" style="border-top:1px solid var(--border); padding:16px 24px; gap:8px">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn" style="background:var(--accent); color:white; font-weight:600">
+                        <i class="bi bi-floppy me-1"></i> Save
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="unitModal" tabindex="-1" aria-labelledby="insertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 20px 60px rgba(0,0,0,0.15)">
+
+                @* Header *@
+                <div class="modal-header" style="border-bottom:1px solid var(--border); padding:20px 24px">
+                    <h5 class="modal-title fw-bold" id="insertModalLabel">
+                        <i class="bi bi-gear-wide-connected" me-2" style="color:var(--accent)"></i> Manage Indicator Unit
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body" style="padding:24px">
+
+                    @* Standard Code *@
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:0.85rem"><span class="text-danger">*</span>Unit </label>
+                        <div style="display:flex; gap:8px; align-items:flex-start;">
+                            <div style="flex:1">
+                                <input type="text" name="Code" id="inputName"
+                                       class="form-control" placeholder="Enter Unit" required>
+                                <div class="invalid-feedback">Please enter a unit.</div>
+                            </div>
+                            <button type="submit" class="btn"
+                                    style="background:var(--accent); color:white; font-weight:600; white-space:nowrap;">
+                                <i class="bi bi-floppy me-1"></i> Add
+                            </button>
+                        </div>
+                    </div>
+
+                    @* Decs *@
+                    <div class="mb-3">
+                        <div class="table-responsive">
+                            <table class="table" id="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Unit Name</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                    @* ข้อมูลจาก Controller หรือ hardcode *@
+                                    <tr data-name="standard a">
+                                        <td>001</td>
+                                        <td>Standard A</td>
+
+                                        <td><a href="#" class="action-btn"><i class="bi bi-pencil"></i></a> <a href="#" class="action-btn"><i class="bi bi-trash"></i></a></td>
+
+                                    </tr>
+                                    <tr data-name="standard b">
+                                        <td>002</td>
+                                        <td>Standard B</td>
+
+                                        <td><a href="#" class="action-btn"><i class="bi bi-pencil"></i></a> <a href="#" class="action-btn"><i class="bi bi-trash"></i></a></td>
+
+                                    </tr>
+                                    <tr data-name="standard c">
+                                        <td>003</td>
+                                        <td>Standard C</td>
+
+                                        <td><a href="#" class="action-btn"><i class="bi bi-pencil"></i></a> <a href="#" class="action-btn"><i class="bi bi-trash"></i></a></td>
+                                    </tr>
+                                    <tr data-name="standard d">
+                                        <td>004</td>
+                                        <td>Standard D</td>
+
+                                        <td><a href="#" class="action-btn"><i class="bi bi-pencil"></i></a> <a href="#" class="action-btn"><i class="bi bi-trash"></i></a></td>
+
+                                    </tr>
+                                    <tr data-name="standard e">
+                                        <td>005</td>
+                                        <td>Standard E</td>
+
+                                        <td><a href="#" class="action-btn"><i class="bi bi-pencil"></i></a> <a href="#" class="action-btn"><i class="bi bi-trash"></i></a></td>
+
+                                    </tr>
+                                    <tr data-name="standard f">
+                                        <td>006</td>
+                                        <td>Standard F</td>
+
+                                        <td><a href="#" class="action-btn"><i class="bi bi-pencil"></i></a> <a href="#" class="action-btn"><i class="bi bi-trash"></i></a></td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="flex:1"></div>
+
+                        <!-- Pagination — แสดงเมื่อมีมากกว่า 1 page -->
+                        <div class="pagination-circle" id="paginationBox" style="display:none"></div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="~/js/site.js"></script>
+<script src="~/js/maintenanceschedule.js"></script>
+
+   <script>
+    // ประกาศข้างนอก — ใช้ได้ทั้ง DOMContentLoaded และ tabContentReady
+    async function _initMasterData() {
+        console.log('📡 Loading master data...');
+        await MaintenanceTree.initMasterData();
+    }
+
+    // กรณีโหลดตรง
+    document.addEventListener('DOMContentLoaded', async () => {
+        console.log('🚀 Initializing System...');
+        try {
+            await _initMasterData();
+            console.log('✅ Standard Ready!');
+        } catch (error) {
+            console.error('❌ Initialization Error:', error);
+        }
+    });
+
+    // กรณีโหลดผ่าน tab
+    document.addEventListener('tabContentReady', async () => {
+        try {
+            await _initMasterData();
+        } catch (error) {
+            console.error('❌ Tab Init Error:', error);
+        }
+    });
+
+    (function () {
+        document.addEventListener('click', function (e) {
+            // 1. หาเป้าหมายที่ถูกคลิก (รองรับทั้ง Card และปุ่ม Back)
+            const target = e.target.closest('.stat-card, .back-btn');
+            if (!target) return; // ถ้าไม่ได้คลิกโดนปุ่มหรือการ์ด ให้จบการทำงาน
+
+            const url = target.getAttribute('data-url');
+            if (!url) return;
+
+            const activePanel = document.querySelector('.tab-panel.active');
+
+            // ตรวจสอบว่ามี Tab System หรือไม่
+            if (activePanel && typeof loadTabContent === 'function') {
+                // 2. ดึงข้อความมาแสดงตอน Loading (ถ้าไม่มี .stat-label ให้ใช้คำว่า 'Previous Page')
+                const labelNode = target.querySelector('.stat-label');
+                const labelText = labelNode ? labelNode.innerText : 'Previous Page';
+
+                activePanel.innerHTML = `
+                    <div style="padding:40px;display:flex;align-items:center;gap:10px;color:var(--muted)">
+                        <div class="spinner-border spinner-border-sm"></div> Switching to ${labelText}...
+                    </div>`;
+
+                // 3. โหลด Content
+                loadTabContent(url, activePanel);
+            } else {
+                // กรณีไม่มีระบบ Tab ให้เปลี่ยนหน้าปกติ
+                window.location.href = url;
+            }
+        });
+    })();
+</script>
+
+
+
+
+    
+    
