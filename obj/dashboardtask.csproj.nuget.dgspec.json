@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\nuntichas\\source\\repos\\dashboardtask\\dashboardtask\\dashboardtask.csproj": {}
+    "C:\\Users\\nuntichas\\source\\repos\\maintenance-database\\dashboardtask.csproj": {}
   },
   "projects": {
-    "C:\\Users\\nuntichas\\source\\repos\\dashboardtask\\dashboardtask\\dashboardtask.csproj": {
+    "C:\\Users\\nuntichas\\source\\repos\\maintenance-database\\dashboardtask.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\nuntichas\\source\\repos\\dashboardtask\\dashboardtask\\dashboardtask.csproj",
+        "projectUniqueName": "C:\\Users\\nuntichas\\source\\repos\\maintenance-database\\dashboardtask.csproj",
         "projectName": "dashboardtask",
-        "projectPath": "C:\\Users\\nuntichas\\source\\repos\\dashboardtask\\dashboardtask\\dashboardtask.csproj",
+        "projectPath": "C:\\Users\\nuntichas\\source\\repos\\maintenance-database\\dashboardtask.csproj",
         "packagesPath": "C:\\Users\\nuntichas\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\nuntichas\\source\\repos\\dashboardtask\\dashboardtask\\obj\\",
+        "outputPath": "C:\\Users\\nuntichas\\source\\repos\\maintenance-database\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
