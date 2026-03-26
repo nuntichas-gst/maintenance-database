@@ -11,69 +11,69 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = dashboardtask
 build_property.RootNamespace = dashboardtask
-build_property.ProjectDir = C:\Users\nuntichas\source\repos\maintenance-database\
+build_property.ProjectDir = /Users/nunticha/maintenance-database/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\nuntichas\source\repos\maintenance-database
+build_property.MSBuildProjectDirectory = /Users/nunticha/maintenance-database
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/Home/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+[/Users/nunticha/maintenance-database/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/Home/Login.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMb2dpbi5jc2h0bWw=
+[/Users/nunticha/maintenance-database/Views/Home/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Mb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/Home/MyTaskIndex.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxNeVRhc2tJbmRleC5jc2h0bWw=
+[/Users/nunticha/maintenance-database/Views/Home/MyTaskIndex.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9NeVRhc2tJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/MasterData/ApprovalConfigIndex.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFzdGVyRGF0YVxBcHByb3ZhbENvbmZpZ0luZGV4LmNzaHRtbA==
+[/Users/nunticha/maintenance-database/Views/MasterData/ApprovalConfigIndex.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTWFzdGVyRGF0YS9BcHByb3ZhbENvbmZpZ0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/MasterData/EmployeeIndex.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFzdGVyRGF0YVxFbXBsb3llZUluZGV4LmNzaHRtbA==
+[/Users/nunticha/maintenance-database/Views/MasterData/EmployeeIndex.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTWFzdGVyRGF0YS9FbXBsb3llZUluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/MasterData/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFzdGVyRGF0YVxJbmRleC5jc2h0bWw=
+[/Users/nunticha/maintenance-database/Views/MasterData/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTWFzdGVyRGF0YS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/MasterData/MaintenanceScheduleIndex.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFzdGVyRGF0YVxNYWludGVuYW5jZVNjaGVkdWxlSW5kZXguY3NodG1s
+[/Users/nunticha/maintenance-database/Views/MasterData/MaintenanceScheduleIndex.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTWFzdGVyRGF0YS9NYWludGVuYW5jZVNjaGVkdWxlSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/MasterData/StandardsIndex.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFzdGVyRGF0YVxTdGFuZGFyZHNJbmRleC5jc2h0bWw=
+[/Users/nunticha/maintenance-database/Views/MasterData/StandardsIndex.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTWFzdGVyRGF0YS9TdGFuZGFyZHNJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/Shared/Error.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+[/Users/nunticha/maintenance-database/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/Shared/_MasterDataLayout.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9NYXN0ZXJEYXRhTGF5b3V0LmNzaHRtbA==
+[/Users/nunticha/maintenance-database/Views/Shared/_MasterDataLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19NYXN0ZXJEYXRhTGF5b3V0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/Shared/_ValidationScriptsPartial.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+[/Users/nunticha/maintenance-database/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/_ViewImports.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+[/Users/nunticha/maintenance-database/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/_ViewStart.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+[/Users/nunticha/maintenance-database/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/nuntichas/source/repos/maintenance-database/Views/Shared/_Layout.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = b-j19e3ihw0e
+[/Users/nunticha/maintenance-database/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-06adik87ig
