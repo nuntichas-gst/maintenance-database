@@ -376,7 +376,7 @@ namespace dashboardtask.Models
         public DateTime CreatedTime { get; set; } = DateTime.Now;
         public DateTime? UpdatedTime { get; set; }
 
-        // ✅ ชื่อปลอดภัย ไม่ชนคลาส
+        //  ชื่อปลอดภัย ไม่ชนคลาส
         public ICollection<MaintenanceSchedule> Schedules { get; set; } = new List<MaintenanceSchedule>();
     }
 

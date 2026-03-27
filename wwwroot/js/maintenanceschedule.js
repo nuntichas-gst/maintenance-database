@@ -1,35 +1,23 @@
-﻿'use strict';
+﻿// masterData.js — Maintenance Standard page
+// โหลดผ่าน @section Scripts ใน Standard/Index.cshtml
+// ต้องการ: site.js (callApi, safeSetText)
 
-// ══════════════════════════════════════════════════════════════════
-//  masterData.js — Maintenance Standard page
-//  โหลดผ่าน @section Scripts ใน Standard/Index.cshtml
-//  ต้องการ: site.js (callApi, safeSetText)
-// ══════════════════════════════════════════════════════════════════
-
-// ── Constants ───────────────────────────────────────────────────────
 const PAGE_SIZE = 10;
 let currentPage = 1;
 
-// ── API Endpoints ───────────────────────────────────────────────────
 const STDMT = {
     standards: 'GetStandards',
     indicators: 'GetIndicators',
     assetTypes: 'GetAssetTypes',
     assetsByType: (typeId) => `GetAssetsByType?assetTypeId=${typeId}`,
     statistics: 'GetStatistics'
-
 };
 
-// ── Module ──────────────────────────────────────────────────────────
 const MaintenanceTree = (() => {
-
-    // ── Private state ──────────────────────────────────────────────
     let _standards = [];
     let _indicators = [];
 
-    // ══════════════════════════════════════════════════════════════
-    //  Public: initMasterData — entry point
-    // ══════════════════════════════════════════════════════════════
+    // ── Entry point ───────────────────────────────────────────────
     async function initMasterData() {
         await Promise.all([
             _loadStandards(),
@@ -40,33 +28,18 @@ const MaintenanceTree = (() => {
 
         _renderStandardsTable(_standards);
         _bindEvents();
-        console.log(' Master data initialized');
+        console.log('Master data initialized');
     }
 
-    // ══════════════════════════════════════════════════════════════
-    //  Private: Load data
-    // ══════════════════════════════════════════════════════════════
+    // ── Load data ─────────────────────────────────────────────────
     async function _loadStatistics() {
         const res = await callApi(STDMT.statistics);
         if (!res?.success) return;
 
         const stats = res.data;
-
-        // อัปเดตการ์ด
-        const cardMap = {
-            '#totalStandards': stats.totalStandards,
-            '#totalIndicators': stats.totalIndicators,
-            '#totalControlItems': stats.totalControlItems,
-            '#totalSchedules': stats.totalSchedules,
-        };
-        Object.entries(cardMap).forEach(([id, val]) => $(id).text(val ?? '-'));
-
-        // สร้างกราฟ
-        createControlsByAssetTypeBottomChart(stats.controlsByAssetType);
-        createSchedulesByIndicatorBottomChart(stats.schedulesByIndicator);
-        createByStandardBottomChart(stats.controlsByStandardChart);
-
-        console.log(' Statistics loaded');
+        _updateCards(stats);
+        _renderCharts(stats);
+        console.log('Statistics loaded');
     }
 
     async function _loadStandards() {
@@ -77,7 +50,7 @@ const MaintenanceTree = (() => {
             value: s.standardId,
             text: s.standardDesc,
         }));
-        console.log('✅ Standards loaded:', _standards.length);
+        console.log(' Standards loaded:', _standards.length);
     }
 
     async function _loadIndicators() {
@@ -88,7 +61,7 @@ const MaintenanceTree = (() => {
             value: ind.indicatorId,
             text: `${ind.indicatorCode} - ${ind.indicatorDesc} (${ind.unitDesc})`,
         }));
-        console.log('✅ Indicators loaded:', _indicators.length);
+        console.log('Indicators loaded:', _indicators.length);
     }
 
     async function _loadAssetTypes() {
@@ -100,34 +73,23 @@ const MaintenanceTree = (() => {
         }));
     }
 
-    // ══════════════════════════════════════════════════════════════
-    //  Public: onAssetTypeChange — เรียกจาก onchange ใน HTML
-    // ══════════════════════════════════════════════════════════════
-    async function onAssetTypeChange() {
-        const typeId = document.querySelector('#assetTypeId')?.value;
-        const assetDdl = document.querySelector('#assetId');
-        if (!assetDdl) return;
-
-        _resetSelect(assetDdl, '-- Choose Asset --');
-        assetDdl.disabled = true;
-        if (!typeId) return;
-
-        document.getElementById('assetLoading')?.classList.remove('d-none');
-        const res = await callApi(STDMT.assetsByType(typeId));
-        document.getElementById('assetLoading')?.classList.add('d-none');
-
-        if (!res?.success || !res.data.length) return;
-
-        _populateSelect('#assetId', res.data, a => ({
-            value: a.assetId,
-            text: `${a.assetCode} - ${a.assetName}`,
-        }));
-        assetDdl.disabled = false;
+    // ── Update UI ────────────────────────────────────────────────
+    function _updateCards(stats) {
+        const cardMap = {
+            '#totalStandards': stats.totalStandards,
+            '#totalIndicators': stats.totalIndicators,
+            '#totalControlItems': stats.totalControlItems,
+            '#totalSchedules': stats.totalSchedules,
+        };
+        Object.entries(cardMap).forEach(([id, val]) => $(id).text(val ?? '-'));
     }
 
-    // ══════════════════════════════════════════════════════════════
-    //  Private: Render table
-    // ══════════════════════════════════════════════════════════════
+    function _renderCharts(stats) {
+        createControlsByAssetTypeBottomChart(stats.controlsByAssetType);
+        createSchedulesByIndicatorBottomChart(stats.schedulesByIndicator);
+        createByStandardBottomChart(stats.controlsByStandardChart);
+    }
+
     function _renderStandardsTable(data) {
         const tbody = document.getElementById('tableBody');
         if (!tbody) return;
@@ -152,17 +114,59 @@ const MaintenanceTree = (() => {
         renderPagination();
     }
 
-    // ══════════════════════════════════════════════════════════════
-    //  Private: Bind events
-    // ══════════════════════════════════════════════════════════════
+    function _renderIndicatorTable(data) {
+        const tbody = document.getElementById('tableBody');
+        if (!tbody) return;
+
+        tbody.innerHTML = data.map(s => `
+            <tr data-name="${(s.standardDesc || '').toLowerCase()}">
+                <td>${String(s.standardId).padStart(3, '0')}</td>
+                <td><span class="task-tag tag-inprogress">${s.standardCode ?? ''}</span></td>
+                <td>${s.standardDesc ?? ''}</td>
+                <td>${s.standardTypeDesc ?? ''}</td>
+                <td style="color:var(--muted)">
+                    ${s.createdTime ? new Date(s.createdTime).toLocaleDateString() : ''}
+                </td>
+                <td>
+                    <a href="#" class="action-btn"><i class="bi bi-pencil"></i></a>
+                    <a href="#" class="action-btn"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>`
+        ).join('');
+
+        currentPage = 1;
+        renderPagination();
+    }
+
+    // ── Events ───────────────────────────────────────────────────
     function _bindEvents() {
         document.querySelector('#assetTypeId')
             ?.addEventListener('change', onAssetTypeChange);
     }
 
-    // ══════════════════════════════════════════════════════════════
-    //  Private: Select helpers
-    // ══════════════════════════════════════════════════════════════
+    async function onAssetTypeChange() {
+        const typeId = document.querySelector('#assetTypeId')?.value;
+        const assetDdl = document.querySelector('#assetId');
+        if (!assetDdl) return;
+
+        _resetSelect(assetDdl, '-- Choose Asset --');
+        assetDdl.disabled = true;
+        if (!typeId) return;
+
+        document.getElementById('assetLoading')?.classList.remove('d-none');
+        const res = await callApi(STDMT.assetsByType(typeId));
+        document.getElementById('assetLoading')?.classList.add('d-none');
+
+        if (!res?.success || !res.data.length) return;
+
+        _populateSelect('#assetId', res.data, a => ({
+            value: a.assetId,
+            text: `${a.assetCode} - ${a.assetName}`,
+        }));
+        assetDdl.disabled = false;
+    }
+
+    // ── Select helpers ───────────────────────────────────────────
     function _populateSelect(selector, items, mapper) {
         document.querySelectorAll(selector).forEach(el => {
             const placeholder = el.querySelector('option:first-child');
@@ -183,17 +187,13 @@ const MaintenanceTree = (() => {
         el.innerHTML = `<option value="">${placeholderText}</option>`;
     }
 
-    // ── Expose public API ──────────────────────────────────────────
     return {
-        initMasterData,   // ✅ expose ออกมา
+        initMasterData,
         onAssetTypeChange,
     };
-
 })();
 
-// ══════════════════════════════════════════════════════════════════
-//  Search
-// ══════════════════════════════════════════════════════════════════
+// ── Search ───────────────────────────────────────────────────────
 function doSearch(query) {
     const q = (query || '').toLowerCase();
     document.querySelectorAll('#tableBody tr').forEach(row => {
@@ -204,9 +204,7 @@ function doSearch(query) {
     renderPagination();
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  Pagination
-// ══════════════════════════════════════════════════════════════════
+// ── Pagination ──────────────────────────────────────────────────
 function renderPagination() {
     const rows = Array.from(document.querySelectorAll('#tableBody tr'))
         .filter(r => r.style.display !== 'none');
@@ -243,15 +241,13 @@ function goPage(page) {
     renderPagination();
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  Init — รองรับทั้ง DOMContentLoaded และ tabContentReady
-// ══════════════════════════════════════════════════════════════════
+// ── Init ─────────────────────────────────────────────────────────
 async function _initPage() {
     try {
         await MaintenanceTree.initMasterData();
-        console.log(' Standard Ready!');
+        console.log('Standard Ready!');
     } catch (error) {
-        console.error(' Initialization Error:', error);
+        console.error('Initialization Error:', error);
     }
 }
 

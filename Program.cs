@@ -1,4 +1,5 @@
 using dashboardtask.Data;
+using dashboardtask.Service;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +60,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 
 //#endregion
+
+builder.Services.AddScoped<IStandardService, StandardService>();
+builder.Services.AddScoped<IAssetService, AssetService>();
+builder.Services.AddScoped<IControlService, ControlService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+
+// Add MVC (Controllers + Views)
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 

@@ -1,6 +1,7 @@
 ﻿using dashboardtask.Data;
 using dashboardtask.Models;
 using dashboardtask.Models.Request;
+using dashboardtask.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,29 +9,31 @@ namespace dashboardtask.Controllers
 {
     public class MasterDataController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IStandardService _standardService;
+        private readonly IAssetService _assetService;
+        private readonly IControlService _controlService;
+        private readonly IScheduleService _scheduleService;
         private readonly ILogger<MasterDataController> _logger;
 
-        public MasterDataController(AppDbContext context) => _context = context;
-        public IActionResult Index()
+        public MasterDataController(
+            IStandardService standardService,
+            IAssetService assetService,
+            IControlService controlService,
+            IScheduleService scheduleService,
+            ILogger<MasterDataController> logger)
         {
-            return View();
+            _standardService = standardService;
+            _assetService = assetService;
+            _controlService = controlService;
+            _scheduleService = scheduleService;
+            _logger = logger;
         }
 
-        public IActionResult MaintenanceScheduleIndex()
-        {
-            return View();
-        }
-
-        public IActionResult EmployeeIndex()
-        {
-            return View();
-        }
-
-        public IActionResult ApprovalConfigIndex()
-        {
-            return View();
-        }
+        // -------------------- Views --------------------
+        public IActionResult Index() => View();
+        public IActionResult MaintenanceScheduleIndex() => View();
+        public IActionResult EmployeeIndex() => View();
+        public IActionResult ApprovalConfigIndex() => View();
 
         public IActionResult StandardsIndex()
         {
@@ -59,338 +62,126 @@ namespace dashboardtask.Controllers
             return View("StandardsIndex");
         }
 
-        [HttpGet("MasterData/GetAssetTypes")]
-        public async Task<IActionResult> GetAssetTypes()
-        {
-            try
-            {
-                var types = await _context.AssetType
-                    .AsNoTracking()
-                    .OrderBy(t => t.TypeName)
-                    .Select(t => new
-                    {
-                        assetTypeId = t.AssetTypeId,
-                        typeName = t.TypeName
-                    })
-                    .ToListAsync();
+        #region standard endpoints
+            // -------------------- Standard Endpoints --------------------
+            [HttpGet("Masterdata/GetStandards")]
+            public async Task<IActionResult> GetStandards() =>
+                await HandleRequest(() => _standardService.GetStandardsAsync(), "Failed to get standards");
 
-                return Ok(ApiResponse<object>.SuccessResponse(types));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<object>.ErrorResponse(
-                    "Failed to get asset types", new List<string> { ex.Message }));
-            }
-        }
+            [HttpGet("Masterdata/GetStandard/{id}")]
+            public async Task<IActionResult> GetStandard(int id) =>
+                await HandleRequest(() => _standardService.GetStandardAsync(id), "Failed to get standard");
 
-        [HttpGet("MasterData/GetAssetData")]
-        public async Task<JsonResult> GetAssetData()
-        {
-            try
-            {
-                var lines = await _context.Line
-                    .AsNoTracking()
-                    .OrderBy(l => l.Code)
-                    .ThenBy(l => l.Name)
-                    .ToListAsync();
+            [HttpGet("Masterdata/GetStandardTypes")]
+            public async Task<IActionResult> GetStandardTypes() =>
+                await HandleRequest(() => _standardService.GetStandardTypesAsync(), "Failed to get standard types");
 
-                var machineCountByLine = await _context.Machine
-                    .AsNoTracking()
-                    .GroupBy(m => m.LineId)
-                    .Select(g => new { LineId = g.Key, Count = g.Count() })
-                    .ToListAsync();
+            [HttpPost("Masterdata/CreateStandard")]
+            public async Task<IActionResult> CreateStandard([FromBody] CreateMaintenanceStandardRequest req) =>
+                await HandleRequest(() => _standardService.CreateStandardAsync(req), "Failed to create standard");
 
-                // ✅ แก้ไข: ใช้ ?? ใน memory แทนที่จะใช้ใน query
-                var treeData = lines.Select(l => new AssetItem
-                {
-                    id = l.LineId,
-                    name = l.Name,
-                    code = l.Code,
-                    level = "Line",
-                    hasChildren = machineCountByLine.Any(m => m.LineId == l.LineId),
-                    children = null,
-                    childrenLoaded = false,
-                    MTTR = l.MTTR ?? 0,
-                    MTBF = l.MTBF ?? 0,
-                    rank = string.IsNullOrEmpty(l.Rank) ? "" : l.Rank,
-                    status = string.IsNullOrEmpty(l.Status) ? "Active" : l.Status
-                }).ToList();
+            [HttpPost("Masterdata/UpdateStandard")]
+            public async Task<IActionResult> UpdateStandard([FromBody] UpdateMaintenanceStandardRequest req) =>
+                await HandleRequest(() => _standardService.UpdateStandardAsync(req), "Failed to update standard");
 
-                var totalLines = await _context.Line.CountAsync();
-                var totalMachines = await _context.Machine.CountAsync();
-                var totalUnits = await _context.Unit.CountAsync();
-                var totalParts = await _context.Part.CountAsync();
-
-                var response = new
-                {
-                    nodes = treeData,
-                    stats = new
-                    {
-                        totalLines = totalLines,
-                        totalMachines = totalMachines,
-                        totalUnits = totalUnits,
-                        totalParts = totalParts
-                    }
-                };
-
-                return Json(response);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { error = ex.Message });
-            }
-        }
-
-        [HttpGet("MasterData/GetStatistics")]
-        public async Task<IActionResult> GetStatistics()
-        {
-            try
-            {
-                var stats = new
-                {
-                    totalStandards = await _context.MaintenanceStandard.CountAsync(),
-                    totalIndicators = await _context.MaintenanceIndicator.CountAsync(),
-                    totalControlItems = await _context.MaintenanceControl.CountAsync(),
-                    totalSchedules = await _context.MaintenanceSchedule.CountAsync(),
-
-                    controlsByAssetType = await _context.MaintenanceControl
-                        .Where(c => c.AssetTypeId != null)
-                        .GroupBy(c => c.AssetType.TypeName)
-                        .Select(g => new { assetType = g.Key, count = g.Count() })
-                        .ToListAsync(),
-
-                    schedulesByIndicator = await _context.MaintenanceSchedule
-                        .Include(s => s.Indicator)
-                        .GroupBy(s => s.Indicator.IndicatorCode)
-                        .Select(g => new { indicator = g.Key, count = g.Count() })
-                        .ToListAsync(),
-
-
-                    controlsByStandardChart = await _context.MaintenanceSchedule
-                        .Include(s => s.Standard)
-                        .GroupBy(s => s.Standard.StandardDesc)
-                        .Select(g => new { Standard = g.Key, count = g.Count() })
-                        .ToListAsync(),
-
-
-                };
-
-                return Ok(ApiResponse<object>.SuccessResponse(stats));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<object>.ErrorResponse(
-                    "Failed to get statistics", new List<string> { ex.Message }));
-            }
-        }
-
-
-        #region Maintenance Standard
-
-        // GET MasterData/GetStandards
-        [HttpGet("MasterData/GetStandards")]
-        public async Task<IActionResult> GetStandards()
-        {
-            try
-            {
-                var standards = await _context.MaintenanceStandard
-                    .Include(s => s.StandardType)
-                    .AsNoTracking()
-                    .OrderBy(s => s.StandardCode)
-                    .Select(s => new
-                    {
-                        standardId = s.StandardId,
-                        standardCode = s.StandardCode,
-                        standardDesc = s.StandardDesc,
-                        standardTypeDesc = s.StandardType.StandardTypeDesc,
-                        createdTime = s.CreatedTime,
-                        updatedTime = s.UpdatedTime,
-                    })
-                    .ToListAsync();
-
-                return Ok(ApiResponse<object>.SuccessResponse(standards));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to get standards");
-                return StatusCode(500, ApiResponse<object>.ErrorResponse("Failed to get standards"));
-            }
-        }
-
-
-        // GET MasterData/GetStandard/{id}
-        [HttpGet("MasterData/GetStandard/{id:int}")]
-        public async Task<IActionResult> GetStandard(int id)
-        {
-            try
-            {
-                var standard = await _context.MaintenanceStandard
-                    .AsNoTracking()
-                    .Where(s => s.StandardId == id)
-                    .Select(s => new
-                    {
-                        s.StandardId,
-                        s.StandardCode,
-                        s.StandardDesc,
-                        s.StandardTypeId,
-                    })
-                    .FirstOrDefaultAsync();
-
-                if (standard is null)
-                    return NotFound(ApiResponse<object>.ErrorResponse("Standard not found"));
-
-                return Ok(ApiResponse<object>.SuccessResponse(standard));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to get standard {Id}", id);
-                return StatusCode(500, ApiResponse<object>.ErrorResponse("Failed to get standard"));
-            }
-        }
-
-
-        // GET MasterData/GetStandardTypes
-        [HttpGet("MasterData/GetStandardTypes")]
-        public async Task<IActionResult> GetStandardTypes()
-        {
-            try
-            {
-                var types = await _context.MaintenanceStandardType
-                    .AsNoTracking()
-                    .OrderBy(t => t.StandardTypeDesc)
-                    .Select(t => new
-                    {
-                        t.StandardTypeId,
-                        t.StandardTypeDesc,
-                    })
-                    .ToListAsync();
-
-                return Ok(ApiResponse<object>.SuccessResponse(types));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to get standard types");
-                return StatusCode(500, ApiResponse<object>.ErrorResponse("Failed to get standard types"));
-            }
-        }
-
-
-        // POST MasterData/CreateStandard
-        [HttpPost("MasterData/CreateStandard")]
-        public async Task<IActionResult> CreateStandard([FromBody] CreateMaintenanceStandardRequest req)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<object>.ErrorResponse(
-                    "Validation failed",
-                    ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage)
-                        .ToList()));
-
-            try
-            {
-                var exists = await _context.MaintenanceStandard
-                    .AnyAsync(s => s.StandardCode == req.StandardCode);
-
-                if (exists)
-                    return Conflict(ApiResponse<object>.ErrorResponse(
-                        $"Standard code '{req.StandardCode}' already exists"));
-
-                var standard = new MaintenanceStandard
-                {
-                    StandardCode = req.StandardCode.Trim(),
-                    StandardDesc = req.StandardDesc.Trim(),
-                    StandardTypeId = req.StandardTypeId,
-                };
-
-                _context.MaintenanceStandard.Add(standard);
-                await _context.SaveChangesAsync();
-
-                return Ok(ApiResponse<object>.SuccessResponse(new
-                {
-                    standardId = standard.StandardId,
-                    message = "Standard created successfully",
-                }));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to create standard: {Code}", req.StandardCode);
-                return StatusCode(500, ApiResponse<object>.ErrorResponse("Failed to create standard"));
-            }
-        }
-
-
-        // POST MasterData/UpdateStandard
-        [HttpPost("MasterData/UpdateStandard")]
-        public async Task<IActionResult> UpdateStandard([FromBody] UpdateMaintenanceStandardRequest req)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<object>.ErrorResponse(
-                    "Validation failed",
-                    ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage)
-                        .ToList()));
-
-            try
-            {
-                var standard = await _context.MaintenanceStandard.FindAsync(req.StandardId);
-
-                if (standard is null)
-                    return NotFound(ApiResponse<object>.ErrorResponse("Standard not found"));
-
-                // อัปเดตเฉพาะ field ที่ส่งมา — null = ไม่เปลี่ยน
-                if (!string.IsNullOrWhiteSpace(req.StandardCode))
-                    standard.StandardCode = req.StandardCode.Trim();
-
-                if (!string.IsNullOrWhiteSpace(req.StandardDesc))
-                    standard.StandardDesc = req.StandardDesc.Trim();
-
-                standard.StandardTypeId = req.StandardTypeId;
-                standard.UpdatedTime = DateTime.UtcNow;  // ✅ UtcNow แทน Now
-
-                await _context.SaveChangesAsync();
-
-                return Ok(ApiResponse<string>.SuccessResponse("Standard updated successfully"));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to update standard {Id}", req.StandardId);
-                return StatusCode(500, ApiResponse<string>.ErrorResponse("Failed to update standard"));
-            }
-        }
-
-
-        // POST MasterData/DeleteStandard
-        [HttpPost("MasterData/DeleteStandard")]
-        public async Task<IActionResult> DeleteStandard([FromBody] DeleteRequest req)
-        {
-            try
-            {
-                var standard = await _context.MaintenanceStandard.FindAsync(req.StandardId);
-
-                if (standard is null)
-                    return NotFound(ApiResponse<object>.ErrorResponse("Standard not found"));
-
-                _context.MaintenanceStandard.Remove(standard);
-                await _context.SaveChangesAsync();
-
-                return Ok(ApiResponse<string>.SuccessResponse("Standard deleted successfully"));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to delete standard {Id}", req.StandardId);
-                return StatusCode(500, ApiResponse<string>.ErrorResponse("Failed to delete standard"));
-            }
-        }
+            [HttpPost("Masterdata/DeleteStandard")]
+            public async Task<IActionResult> DeleteStandard([FromBody] DeleteRequest req) =>
+                await HandleRequest(() => _standardService.DeleteStandardAsync(req), "Failed to delete standard");
 
         #endregion
 
-        #region maintenance indicators
-        //[HttpGet("GetIndicators")]
-        //public async Task<IActionResult> GetIndicators(int? unitId = null)
-        //=> Ok(ApiResponse<object>.SuccessResponse(await _repo.GetIndicatorsAsync(unitId)));
+        #region asset endpoints
+
+        // -------------------- Asset Endpoints --------------------
+        [HttpGet("Masterdata/GetAssetTypes")]
+            public async Task<IActionResult> GetAssetTypes() =>
+                await HandleRequest(() => _assetService.GetAssetTypesAsync(), "Failed to get asset types");
+
+            [HttpGet("Masterdata/GetAssetData")]
+            public async Task<IActionResult> GetAssetData() =>
+                await HandleRequest(() => _assetService.GetAssetDataAsync(), "Failed to get asset data");
+
+            [HttpGet("Masterdata/GetStatistics")]
+            public async Task<IActionResult> GetStatistics() =>
+                await HandleRequest(() => _assetService.GetStatisticsAsync(), "Failed to get statistics");
+
+            [HttpGet("Masterdata/GetAssetsByType")]
+            public async Task<IActionResult> GetAssetsByType(int assetTypeId) =>
+                await HandleRequest(() => _assetService.GetAssetsByTypeAsync(assetTypeId), "Failed to get assets by type");
+
         #endregion
+
+        #region control endpoints
+        // -------------------- Control Endpoints --------------------
+        [HttpGet("Masterdata/GetAssetControls")]
+            public async Task<IActionResult> GetAssetControls(int? assetTypeId, string assetName) =>
+                await HandleRequest(() => _controlService.GetAssetControlsAsync(assetTypeId, assetName), "Failed to get asset controls");
+
+            [HttpGet("Masterdata/GetAssetControl/{id}")]
+            public async Task<IActionResult> GetAssetControl(int id) =>
+                await HandleRequest(() => _controlService.GetAssetControlAsync(id), "Failed to get asset control");
+
+            [HttpPost("Masterdata/CreateAssetControl")]
+            public async Task<IActionResult> CreateAssetControl([FromBody] AssetControlRequest req) =>
+                await HandleRequest(() => _controlService.CreateAssetControlAsync(req), "Failed to create asset control");
+
+            [HttpPost("Masterdata/UpdateAssetControl")]
+            public async Task<IActionResult> UpdateAssetControl([FromBody] AssetControlRequest req) =>
+                await HandleRequest(() => _controlService.UpdateAssetControlAsync(req), "Failed to update asset control");
+
+            [HttpPost("Masterdata/DeleteAssetControl")]
+            public async Task<IActionResult> DeleteAssetControl([FromBody] DeleteAssetControlRequest req) =>
+                await HandleRequest(() => _controlService.DeleteAssetControlAsync(req), "Failed to delete asset control");
+
+        #endregion
+
+        #region schedule endpoints
+        // -------------------- Schedule Endpoints --------------------
+        [HttpGet("Masterdata/GetSchedules")]
+            public async Task<IActionResult> GetSchedules(int controlItemId) =>
+                await HandleRequest(() => _scheduleService.GetSchedulesAsync(controlItemId), "Failed to get schedules");
+
+            [HttpPost("Masterdata/CreateSchedule")]
+            public async Task<IActionResult> CreateSchedule([FromBody] CreateMaintenanceScheduleRequest req) =>
+                await HandleRequest(() => _scheduleService.CreateScheduleAsync(req), "Failed to create schedule");
+
+            [HttpPost("Masterdata/UpdateSchedule")]
+            public async Task<IActionResult> UpdateSchedule([FromBody] UpdateMaintenanceScheduleRequest req) =>
+                await HandleRequest(() => _scheduleService.UpdateScheduleAsync(req), "Failed to update schedule");
+
+            [HttpPost("Masterdata/DeleteSchedule")]
+            public async Task<IActionResult> DeleteSchedule([FromBody] DeleteScheduleRequest req) =>
+                await HandleRequest(() => _scheduleService.DeleteScheduleAsync(req), "Failed to delete schedule");
+
+            [HttpPost("Masterdata/BulkCreateSchedules")]
+            public async Task<IActionResult> BulkCreateSchedules([FromBody] BulkScheduleRequest req) =>
+                await HandleRequest(() => _scheduleService.BulkCreateSchedulesAsync(req), "Failed to bulk create schedules");
+
+        #endregion
+
+        #region helper method
+        // -------------------- Helper Method --------------------
+        private async Task<IActionResult> HandleRequest<T>(Func<Task<T>> action, string errorMessage)
+            {
+                try
+                {
+                    var result = await action();
+                    return Ok(ApiResponse<T>.SuccessResponse(result));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, errorMessage);
+                    return StatusCode(500, ApiResponse<T>.ErrorResponse(errorMessage));
+                }
+            }
+        #endregion
+
+
+
+
+
+       
+  
 
 
 
